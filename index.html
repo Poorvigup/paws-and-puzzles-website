@@ -24,6 +24,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; cursor: url('assets/images/paw-cursor.png'), auto; }
         a:hover, button:hover, .treat:hover { cursor: url('assets/images/paw-pointer.png'), auto; }
+        
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-cream); color: var(--text-dark); overflow-x: hidden; }
         
         .container { max-width: 1100px; margin: auto; padding: 0 2rem; position: relative; z-index: 2; }
@@ -32,12 +33,10 @@
         .animated-item.visible { opacity: 1; transform: translateY(0); }
 
         .bg-blob { position: absolute; background: linear-gradient(135deg, var(--orange), #ffd54f); z-index: 0; animation: blob-anim 15s infinite ease-in-out; }
-        .blob1 { width: 400px; height: 400px; top: 100px; left: -150px; }
-        .blob2 { width: 300px; height: 300px; top: 700px; right: -100px; }
-        .yarn-ball { position: absolute; width: 150px; bottom: -50px; right: 20%; z-index: 3; animation: spin 20s linear infinite; }
         
-        .sound-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 1001; background: var(--white); border-radius: 50%; width: 50px; height: 50px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .sound-toggle img { width: 24px; height: 24px; }
+        .blob1 { width: 400px; height: 400px; top: 100px; left: -250px; }
+        .blob2 { width: 300px; height: 300px; top: 700px; right: -150px; }
+        .yarn-ball { position: absolute; width: 150px; bottom: -50px; right: 20%; z-index: 3; animation: spin 20s linear infinite; }
         
         .treat { position: absolute; width: 90px; height: 90px; z-index: 5; opacity: 0.7; transition: opacity 0.3s, transform 0.3s; }
         .treat img { width: 100%; }
@@ -53,7 +52,7 @@
         .logo { font-family: 'Luckiest Guy', cursive; font-size: 2rem; color: var(--orange-dark); text-decoration: none; }
         .nav-link { font-weight: 600; text-decoration: none; color: var(--text-dark); margin: 0 0 0 2rem; }
 
-        .hero { min-height: 100vh; display: flex; align-items: center; }
+        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; }
         .hero-content { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
         .hero-text { flex-basis: 50%; }
         .hero-text h1 { font-family: 'Luckiest Guy', cursive; font-size: 5rem; line-height: 1.1; }
@@ -111,21 +110,38 @@
         .final-cta h2 { font-size: 5rem; }
         .final-cta .btn { margin-top: 2rem; transform: scale(1.2); }
 
+        /* ✨ THIS IS THE FIX. It targets screens smaller than 768px (most phones) ✨ */
         @media (max-width: 768px) {
-            .hero-content, .feature-row, .feature-row:nth-child(even) { flex-direction: column; text-align: center; }
-            .hero-text h1 { font-size: 3.5rem; } .hero-image { margin-top: 3rem; }
-            h2 { font-size: 2.8rem; } .final-cta h2 { font-size: 3rem; }
+            .hero {
+                padding-top: 100px; /* Add some space from the top */
+                min-height: auto;
+                text-align: center;
+            }
+            .hero-content {
+                flex-direction: column; /* Stack text on top of image */
+            }
+            .hero-text h1 {
+                font-size: 3.2rem; /* Reduce the headline size */
+            }
+            .hero-image {
+                margin-top: 3rem; /* Add space between text and image */
+            }
+            .feature-row, .feature-row:nth-child(even) {
+                flex-direction: column; /* Stack all feature sections vertically */
+                text-align: center;
+            }
+            h2 {
+                font-size: 2.8rem;
+            }
+            .final-cta h2 {
+                font-size: 3rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="bg-blob blob1"></div>
     <div class="bg-blob blob2"></div>
-
-    <audio id="bg-music" src="assets/audio/music.mp3" loop></audio>
-    <audio id="click-sound" src="assets/audio/click.mp3"></audio>
-    <audio id="meow-sound" src="assets/audio/meow.mp3"></audio>
-    <button class="sound-toggle" id="sound-toggle"><img src="assets/images/icon-sound-off.svg" alt="Sound Toggle"></button>
 
     <header class="main-header" id="main-header">
         <div class="container"><a href="#" class="logo">Paws & Puzzles</a><nav><a href="#download" class="nav-link">Download Now</a></nav></div>
@@ -189,7 +205,10 @@
         
         <section class="final-cta" id="download">
             <div class="container">
-                <div class="animated-item"><h2>Ready to Play?</h2><a href="assets/apk/app-release.apk" class="btn clickable" id="download-btn" download>Download The APK!</a><p style="margin-top: 2rem;">v1.0 for Android | 100% Safe & Secure | by Poorvi Gupta</p></div>
+                <div class="animated-item"><h2>Ready to Play?</h2>
+                    <a href="https://drive.google.com/uc?export=download&id=11PhmcSmdaeNtwunWABd-vQK100hKFWmN" class="btn clickable" id="download-btn" download>Download The APK!</a>
+                    <p style="margin-top: 2rem;">v1.0 for Android | 100% Safe & Secure | by Poorvi Gupta ❤️</p>
+                </div>
             </div>
             <div class="treat treat1"><img src="assets/images/treat.png" alt="Cat Treat"></div>
             <img src="assets/images/yarn-ball.png" alt="Yarn Ball" class="yarn-ball">
@@ -200,26 +219,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const bgMusic = document.getElementById('bg-music');
-            const clickSound = document.getElementById('click-sound');
-            const meowSound = document.getElementById('meow-sound');
-            const soundToggle = document.getElementById('sound-toggle');
-            const soundIcon = soundToggle.querySelector('img');
-            let isMuted = true;
-            
-            function toggleMute() {
-                isMuted = !isMuted;
-                bgMusic.muted = isMuted;
-                clickSound.muted = isMuted;
-                meowSound.muted = isMuted;
-                soundIcon.src = isMuted ? 'assets/images/icon-sound-off.svg' : 'assets/images/icon-sound-on.svg';
-                if (!isMuted && bgMusic.paused) { bgMusic.play().catch(e => console.log("Autoplay blocked")); }
-            }
-            soundToggle.addEventListener('click', toggleMute);
-            document.querySelectorAll('.clickable, .btn, .nav-link, .carousel-button').forEach(el => {
-                el.addEventListener('click', () => !isMuted && clickSound.play());
-            });
-
             const headline = document.getElementById('splash-headline');
             const text = headline.innerText;
             headline.innerHTML = '';
@@ -235,7 +234,6 @@
             treats.forEach(treat => {
                 treat.addEventListener('click', () => {
                     if (!treat.classList.contains('found')) {
-                        if(!isMuted) meowSound.play();
                         treat.classList.add('found');
                         treatsFound++;
                         if (treatsFound === treats.length) {
