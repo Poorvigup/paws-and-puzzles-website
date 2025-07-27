@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paws & Puzzles - The Ultimate Cat Puzzle Adventure!</title>
+    <meta name="description" content="Jump into a world of fun! Download the official APK for Paws & Puzzles. Solve, adopt, and play in the most interactive cat game ever.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #ffb300; --orange-dark: #f57c00; --white: #ffffff;
+            --text-dark: #4E342E; --bg-cream: #fffaf0; --blue-accent: #69c0ff;
+            --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes blob-anim { 0%, 100% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; } 50% { border-radius: 30% 70% 40% 60% / 50% 60% 30% 40%; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes splash { 0% { transform: translateY(50px) scale(0); opacity: 0; } 80% { transform: translateY(-5px) scale(1.1); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg) scale(1.2); } 25% { transform: rotate(8deg) scale(1.2); } 75% { transform: rotate(-8deg) scale(1.2); } }
+        @keyframes poof-out { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; cursor: url('assets/images/paw-cursor.png'), auto; }
+        a:hover, button:hover, .treat:hover { cursor: url('assets/images/paw-pointer.png'), auto; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-cream); color: var(--text-dark); overflow-x: hidden; }
+        
+        .container { max-width: 1100px; margin: auto; padding: 0 2rem; position: relative; z-index: 2; }
+        h2 { font-family: 'Luckiest Guy', cursive; font-size: 3.5rem; line-height: 1.2; letter-spacing: 1px; margin-bottom: 1rem; }
+        .animated-item { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .animated-item.visible { opacity: 1; transform: translateY(0); }
+
+        .bg-blob { position: absolute; background: linear-gradient(135deg, var(--orange), #ffd54f); z-index: 0; animation: blob-anim 15s infinite ease-in-out; }
+        .blob1 { width: 400px; height: 400px; top: 100px; left: -150px; }
+        .blob2 { width: 300px; height: 300px; top: 700px; right: -100px; }
+        .yarn-ball { position: absolute; width: 150px; bottom: -50px; right: 20%; z-index: 3; animation: spin 20s linear infinite; }
+        
+        .sound-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 1001; background: var(--white); border-radius: 50%; width: 50px; height: 50px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .sound-toggle img { width: 24px; height: 24px; }
+        
+        .treat { position: absolute; width: 90px; height: 90px; z-index: 5; opacity: 0.7; transition: opacity 0.3s, transform 0.3s; }
+        .treat img { width: 100%; }
+        .treat:not(.found):hover { opacity: 1; animation: wiggle 0.5s infinite; }
+        .treat.found { animation: poof-out 0.4s ease-out forwards; }
+        .treat1 { bottom: 20px; right: 10%; } 
+        .treat2 { top: 20%; right: 0px; } 
+        .treat3 { top: 0; left: 20px; } 
+        
+        .main-header { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 1.5rem 0; transition: all 0.3s; }
+        .main-header.scrolled { background: rgba(255, 250, 240, 0.85); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .main-header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Luckiest Guy', cursive; font-size: 2rem; color: var(--orange-dark); text-decoration: none; }
+        .nav-link { font-weight: 600; text-decoration: none; color: var(--text-dark); margin: 0 0 0 2rem; }
+
+        .hero { min-height: 100vh; display: flex; align-items: center; }
+        .hero-content { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+        .hero-text { flex-basis: 50%; }
+        .hero-text h1 { font-family: 'Luckiest Guy', cursive; font-size: 5rem; line-height: 1.1; }
+        .hero-text h1 span { display: inline-block; opacity: 0; animation: splash 0.5s forwards; }
+        .hero-text p { font-size: 1.2rem; margin: 1.5rem 0 2.5rem 0; }
+        .hero-image { flex-basis: 40%; text-align: center; }
+        .hero-image img { width: 100%; max-width: 350px; animation: float 6s ease-in-out infinite; }
+        
+        .btn {
+            display: inline-block; padding: 1rem 2.5rem; background: var(--orange); color: var(--white); border-radius: 50px; text-decoration: none;
+            font-family: 'Luckiest Guy', cursive; font-size: 1.5rem; border: none; letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(245, 124, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(245, 124, 0, 0.6); }
+        .btn:active { transform: translateY(-1px) scale(0.98); }
+
+        .feature-section { padding: 8rem 0; position: relative; }
+        .feature-row { display: flex; align-items: center; justify-content: space-between; gap: 4rem; margin-bottom: 8rem; position: relative; }
+        .feature-row:nth-child(even) { flex-direction: row-reverse; }
+        .feature-text { flex: 1; }
+        .feature-text .tag { display: inline-block; background: var(--blue-accent); color: white; padding: 0.3rem 1rem; border-radius: 20px; margin-bottom: 1rem; font-weight: 600; }
+        .feature-image { flex: 1; position: relative; }
+        .phone-mockup {
+            width: 100%; max-width: 300px; border: 10px solid #222; border-radius: 40px;
+            box-shadow: var(--card-shadow); transition: transform 0.3s;
+        }
+        .feature-row:hover .phone-mockup { transform: rotate(-3deg) scale(1.05); }
+        .feature-row:nth-child(even):hover .phone-mockup { transform: rotate(3deg) scale(1.05); }
+
+        .other-games { text-align: center; }
+        .other-games-grid { display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; margin-top: 2rem; }
+        .game-icon { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .game-icon img { height: 50px; }
+        .game-icon p { font-weight: 600; }
+
+        #showcase { background: var(--white); padding: 8rem 0; position: relative; }
+        .carousel-wrapper { max-width: 500px; margin: 3rem auto 0 auto; position: relative; }
+        .carousel-track-container { overflow: hidden; }
+        .carousel-track { display: flex; transition: transform 0.5s ease-in-out; }
+        .carousel-slide { flex: 0 0 100%; padding: 0 1rem; }
+        .carousel-slide img { width: 100%; max-width: 350px; margin: auto; display: block; border-radius: 25px; box-shadow: var(--card-shadow); }
+        .carousel-caption { text-align: center; margin-top: 1.5rem; font-family: 'Luckiest Guy', cursive; font-size: 1.8rem; }
+        .carousel-button {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: var(--white); border: none; border-radius: 50%;
+            width: 50px; height: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.5rem; color: var(--orange);
+        }
+        .carousel-button:hover { background: var(--orange); color: var(--white); }
+        .carousel-button--left { left: 0; }
+        .carousel-button--right { right: 0; }
+
+        .final-cta { padding: 8rem 0; text-align: center; position: relative; }
+        .final-cta h2 { font-size: 5rem; }
+        .final-cta .btn { margin-top: 2rem; transform: scale(1.2); }
+
+        @media (max-width: 768px) {
+            .hero-content, .feature-row, .feature-row:nth-child(even) { flex-direction: column; text-align: center; }
+            .hero-text h1 { font-size: 3.5rem; } .hero-image { margin-top: 3rem; }
+            h2 { font-size: 2.8rem; } .final-cta h2 { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+
+    <audio id="bg-music" src="assets/audio/music.mp3" loop></audio>
+    <audio id="click-sound" src="assets/audio/click.mp3"></audio>
+    <audio id="meow-sound" src="assets/audio/meow.mp3"></audio>
+    <button class="sound-toggle" id="sound-toggle"><img src="assets/images/icon-sound-off.svg" alt="Sound Toggle"></button>
+
+    <header class="main-header" id="main-header">
+        <div class="container"><a href="#" class="logo">Paws & Puzzles</a><nav><a href="#download" class="nav-link">Download Now</a></nav></div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text animated-item">
+                        <h1 id="splash-headline">Puzzles Have Never Been This Cute.</h1>
+                        <p>Jump into a world of adorable cats and addictive puzzles. Feed your pets, level up your skills, and collect them all!</p>
+                        <a href="#download" class="btn clickable">Get the APK!</a>
+                    </div>
+                    <div class="hero-image animated-item" style="animation-delay: 0.2s;"><img src="assets/images/app-icon.png" alt="Paws & Puzzles App Icon"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-section">
+            <div class="container">
+                <div class="feature-row">
+                    <div class="feature-image animated-item">
+                        <img src="assets/images/showcase-merge.png" alt="Kitty Merge Gameplay" class="phone-mockup">
+                        <div class="treat treat2"><img src="assets/images/treat.png" alt="Cat Treat"></div>
+                    </div>
+                    <div class="feature-text animated-item"><span class="tag">Addictive Logic</span><h2>Merge Your Way to Cuteness</h2><p>Slide and combine charming cat-themed icons in the super-addictive Kitty Merge (2048) game. Plan your moves to reach the ultimate Royal Cat tile!</p></div>
+                </div>
+                <div class="feature-row">
+                    <div class="feature-image animated-item"><img src="assets/images/showcase-memory.png" alt="Memory Game Gameplay" class="phone-mockup"></div>
+                    <div class="feature-text animated-item"><span class="tag">Brain Training</span><h2>Test Your Memory</h2><p>Relax and sharpen your mind with the classic Memory Game. Or, for a real challenge, race against the clock in the fast-paced Quick Match mode!</p></div>
+                </div>
+            </div>
+            <div class="other-games container animated-item">
+                <h3>...and even more puzzles!</h3>
+                <div class="other-games-grid">
+                    <div class="game-icon"><img src="assets/images/icon-slider.svg" alt="Sliding Puzzle"><p>Sliding Puzzle</p></div>
+                    <div class="game-icon"><img src="assets/images/icon-word.svg" alt="Word Search"><p>Word Search</p></div>
+                    <div class="game-icon"><img src="assets/images/icon-sudoku.svg" alt="Feline Sudoku"><p>Feline Sudoku</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="showcase">
+            <div class="container">
+                <div style="text-align:center;" class="animated-item"><h2>Adopt, Collect, & Customize</h2><p>Your journey is more than just puzzles. Create a profile that's uniquely you!</p></div>
+                <div class="treat treat3"><img src="assets/images/treat.png" alt="Cat Treat"></div>
+                <div class="carousel-wrapper animated-item" style="animation-delay: 0.2s;">
+                    <div class="carousel-track-container">
+                        <ul class="carousel-track">
+                            <li class="carousel-slide current-slide"><img src="assets/images/screenshot-pet-home.png" alt="Interactive Pet Screen"><p class="carousel-caption">Care for Your Pet</p></li>
+                            <li class="carousel-slide"><img src="assets/images/screenshot-pet-store.png" alt="Pet Store Screen"><p class="carousel-caption">Visit the Pet Store</p></li>
+                            <li class="carousel-slide"><img src="assets/images/screen-collection.png" alt="Cat Collection Screen"><p class="carousel-caption">Build Your Collection</p></li>
+                            <li class="carousel-slide"><img src="assets/images/screenshot-passport.png" alt="Player Passport Screen"><p class="carousel-caption">Level Up Your Passport</p></li>
+                        </ul>
+                    </div>
+                    <button class="carousel-button carousel-button--left clickable">◀</button><button class="carousel-button carousel-button--right clickable">▶</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="final-cta" id="download">
+            <div class="container">
+                <div class="animated-item"><h2>Ready to Play?</h2><a href="assets/apk/app-release.apk" class="btn clickable" id="download-btn" download>Download The APK!</a><p style="margin-top: 2rem;">v1.0 for Android | 100% Safe & Secure | by Poorvi Gupta</p></div>
+            </div>
+            <div class="treat treat1"><img src="assets/images/treat.png" alt="Cat Treat"></div>
+            <img src="assets/images/yarn-ball.png" alt="Yarn Ball" class="yarn-ball">
+        </section>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bgMusic = document.getElementById('bg-music');
+            const clickSound = document.getElementById('click-sound');
+            const meowSound = document.getElementById('meow-sound');
+            const soundToggle = document.getElementById('sound-toggle');
+            const soundIcon = soundToggle.querySelector('img');
+            let isMuted = true;
+            
+            function toggleMute() {
+                isMuted = !isMuted;
+                bgMusic.muted = isMuted;
+                clickSound.muted = isMuted;
+                meowSound.muted = isMuted;
+                soundIcon.src = isMuted ? 'assets/images/icon-sound-off.svg' : 'assets/images/icon-sound-on.svg';
+                if (!isMuted && bgMusic.paused) { bgMusic.play().catch(e => console.log("Autoplay blocked")); }
+            }
+            soundToggle.addEventListener('click', toggleMute);
+            document.querySelectorAll('.clickable, .btn, .nav-link, .carousel-button').forEach(el => {
+                el.addEventListener('click', () => !isMuted && clickSound.play());
+            });
+
+            const headline = document.getElementById('splash-headline');
+            const text = headline.innerText;
+            headline.innerHTML = '';
+            text.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.innerText = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${i * 0.03}s`;
+                headline.appendChild(span);
+            });
+            
+            const treats = document.querySelectorAll('.treat');
+            let treatsFound = 0;
+            treats.forEach(treat => {
+                treat.addEventListener('click', () => {
+                    if (!treat.classList.contains('found')) {
+                        if(!isMuted) meowSound.play();
+                        treat.classList.add('found');
+                        treatsFound++;
+                        if (treatsFound === treats.length) {
+                            setTimeout(() => alert("You found all the treats! You're PAWSOME!"), 500);
+                        }
+                    }
+                }, { once: true });
+            });
+
+            document.getElementById('download-btn').addEventListener('click', () => {
+                if (window.confetti) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+            });
+
+            const header = document.getElementById('main-header');
+            window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 50); });
+            const animatedItems = document.querySelectorAll('.animated-item');
+            const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.15 });
+            animatedItems.forEach(item => observer.observe(item));
+            
+            const track = document.querySelector('.carousel-track');
+            const slides = Array.from(track.children);
+            const nextButton = document.querySelector('.carousel-button--right');
+            const prevButton = document.querySelector('.carousel-button--left');
+            const setSlidePositions = () => { if(slides.length === 0) return; const slideWidth = slides[0].getBoundingClientRect().width; slides.forEach((slide, index) => { slide.style.left = slideWidth * index + 'px'; }); };
+            setSlidePositions();
+            const moveToSlide = (currentSlide, targetSlide) => { if (!targetSlide) return; track.style.transform = `translateX(-${targetSlide.style.left})`; currentSlide.classList.remove('current-slide'); targetSlide.classList.add('current-slide'); };
+            nextButton.addEventListener('click', () => { const currentSlide = track.querySelector('.current-slide'); const nextSlide = currentSlide.nextElementSibling || slides[0]; moveToSlide(currentSlide, nextSlide); });
+            prevButton.addEventListener('click', () => { const currentSlide = track.querySelector('.current-slide'); const prevSlide = currentSlide.previousElementSibling || slides[slides.length - 1]; moveToSlide(currentSlide, prevSlide); });
+            window.addEventListener('resize', setSlidePositions);
+        });
+    </script>
+</body>
+</html>
